@@ -1,0 +1,50 @@
+ID: NodeAndUI5
+_schema-version: "2.1"
+description: Node and UI5 - no destinations test
+version: 0.0.1
+modules:
+  - name: NodeAndUI5-db
+    type: hdb
+    path: db
+    parameters:
+      memory: 256M
+      disk-quota: 256M
+    requires:
+      - name: NodeAndUI5-db-hdi-container
+  - name: NodeAndUI5-srv
+    type: nodejs
+    path: srv
+    parameters:
+      memory: 512M
+      disk-quota: 256M
+    provides:
+      - name: srv_api
+        properties:
+          url: ${default-url}
+    requires:
+      - name: NodeAndUI5-db-hdi-container
+
+  - name: app
+    type: html5
+    path: app
+    parameters:
+       disk-quota: 256M
+       memory: 256M
+    build-parameters:
+       builder: grunt
+    requires:
+     - name: uaa_NodeAndUI5
+
+resources:
+  - name: NodeAndUI5-db-hdi-container
+    type: com.sap.xs.hdi-container
+    properties:
+      hdi-container-name: ${service-name}
+
+  - name: uaa_NodeAndUI5
+    parameters:
+       path: ./xs-security.json
+       service-plan: application
+       service: xsuaa
+    type: org.cloudfoundry.managed-service
+
